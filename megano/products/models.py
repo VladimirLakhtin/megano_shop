@@ -35,7 +35,7 @@ class Product(models.Model):
     )
     tags = models.ManyToManyField(
         Tag,
-        related_name='tags',
+        related_name='products',
         blank=True,
     )
     is_limited = models.BooleanField(default=False)
