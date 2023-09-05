@@ -4,16 +4,24 @@ from accounts.models import Profile
 from products.models import Product
 
 
-class OrderStatus(models.Model):
+class Status(models.Model):
     title = models.CharField(max_length=50)
 
+    @classmethod
+    def get_default(cls):
+        return cls.objects.get_or_create(title='placed')[0]
 
-class OrderDeliveryType(models.Model):
+
+class DeliveryType(models.Model):
     title = models.CharField(max_length=30)
 
 
-class OrderPaymentType(models.Model):
+class PaymentType(models.Model):
     title = models.CharField(max_length=30)
+
+    @classmethod
+    def get_default(cls):
+        return cls.objects.get_or_create(title='awaiting payment')[0]
 
 
 class Order(models.Model):
@@ -25,14 +33,16 @@ class Order(models.Model):
     )
     createdAt = models.DateTimeField(auto_now=True)
     deliveryType_id = models.ForeignKey(
-        OrderDeliveryType,
+        DeliveryType,
         related_name='orders',
         on_delete=models.PROTECT,
+        null=True,
     )
     paymentType_id = models.ForeignKey(
-        OrderPaymentType,
+        PaymentType,
         related_name='orders',
         on_delete=models.PROTECT,
+        default=PaymentType.get_default(),
     )
     totalCost = models.DecimalField(
         default=0,
@@ -40,24 +50,25 @@ class Order(models.Model):
         decimal_places=2,
     )
     status_id = models.ForeignKey(
-        OrderStatus,
+        Status,
         related_name='orders',
         on_delete=models.PROTECT,
+        default=Status.get_default(),
     )
     city = models.CharField(max_length=200)
     address = models.CharField(max_length=200)
     products = models.ManyToManyField(Product, related_name='orders')
 
     @property
-    def status(self) -> OrderStatus:
+    def status(self) -> Status:
         return self.status_id.title
 
     @property
-    def deliveryType(self) -> OrderDeliveryType:
+    def deliveryType(self) -> DeliveryType:
         return self.deliveryType_id.title
 
     @property
-    def paymentType(self) -> OrderPaymentType:
+    def paymentType(self) -> PaymentType:
         return self.paymentType_id.title
 
     def __str__(self) -> str:
