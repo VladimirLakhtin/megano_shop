@@ -1,3 +1,5 @@
+from typing import Iterable
+
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
 from django.db.models import Avg, Count
@@ -13,7 +15,7 @@ class Tag(models.Model):
         max_length=100
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}(name={self.name})"
 
 
@@ -27,6 +29,7 @@ class Product(models.Model):
     description = models.CharField(max_length=256, null=False, blank=True)
     fullDescription = models.TextField(blank=True, null=False)
     freeDelivery = models.BooleanField(default=False)
+    sort_index = models.PositiveIntegerField(default=0)
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
@@ -47,12 +50,12 @@ class Product(models.Model):
         return self.reviews.aggregate(Avg('rate'))['rate__avg']
 
     @property
-    def get_images(self):
+    def get_images(self) -> Iterable:
         """Get product images or a default image"""
 
         images = self.images.all()
         if not images:
-            return ProductImage.get_default()
+            return [ProductImage.get_default()]
         return images
 
     # @property
@@ -61,7 +64,7 @@ class Product(models.Model):
     #
     #     return self.reviews.annotate(Count("text"))[0]['text__count']
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}" \
                f"(title={self.title})"
 
@@ -77,7 +80,7 @@ class ProductSpecification(models.Model):
         verbose_name = "Product specification"
         verbose_name_plural = "Product specifications"
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}" \
                f"(product={self.product.title}, " \
                f"name={self.name})"
@@ -114,7 +117,9 @@ class ProductImage(models.Model):
         image, _ = cls.objects.get_or_create(src=cls.default_path)
         return image
 
-    def __str__(self):
+    def __str__(self) -> str:
+        if self.src == self.default_path:
+            return f"{self.__class__.__name__}(DEFAULT)"
         return f"{self.__class__.__name__}(product={self.product.title})"
 
 
@@ -137,7 +142,7 @@ class Review(models.Model):
         related_name='reviews',
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}" \
                f"(product={self.product}, " \
                f"author={self.author})"
@@ -159,6 +164,6 @@ class Sale(models.Model):
     dateFrom = models.DateField(default='')
     dateTo = models.DateField(blank=True, null=True)
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}" \
                f"(product={self.product.title})"
