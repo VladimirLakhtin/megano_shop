@@ -1,9 +1,11 @@
-from django.db.models import Count
+from typing import List, Dict
+
+from django.db.models import Count, QuerySet
 from rest_framework import serializers
 
 from catalog.models import Category, CategoryImage
-from products.models import Product, Tag
-from products.serializers import ProductSerializer
+from products.models import Product, Sale
+from products.serializers import ProductSerializer, TagSerializer
 
 
 class CategoryImageSerializer(serializers.ModelSerializer):
@@ -24,7 +26,7 @@ class CategorySerializer(serializers.ModelSerializer):
         model = Category
         fields = 'id', 'title', 'image', 'subcategories'
 
-    def get_subcategories(self, obj):
+    def get_subcategories(self, obj: Category) -> List[Dict]:
         subcategories = list(obj.children.all())
         subcategories_data = [
             {
@@ -35,14 +37,6 @@ class CategorySerializer(serializers.ModelSerializer):
             for subcategory in subcategories
         ]
         return subcategories_data
-
-
-class TagSerializer(serializers.ModelSerializer):
-    """Serializer for product tag"""
-
-    class Meta:
-        model = Tag
-        fields = 'id', 'name'
 
 
 class CatalogSerializer(ProductSerializer):
@@ -57,5 +51,31 @@ class CatalogSerializer(ProductSerializer):
         parent_fields = set(ProductSerializer.Meta.fields)
         fields = tuple(parent_fields - fields_to_remove)
 
-    def get_reviews(self, obj):
+    def get_reviews(self, obj: Product) -> QuerySet:
         return obj.reviews.aggregate(Count("text")).get('text__count')
+
+
+class SaleSerializer(serializers.ModelSerializer):
+    """Serializer for instance of Sale"""
+
+    id = serializers.SerializerMethodField()
+    price = serializers.SerializerMethodField()
+    title = serializers.SerializerMethodField()
+    images = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Sale
+        fields = 'id', 'price', 'salePrice', \
+            'dateFrom', 'dateTo', 'title', 'images'
+
+    def get_id(self, obj: Sale) -> int:
+        return obj.product.id
+
+    def get_price(self, obj: Sale) -> float:
+        return obj.product.price
+
+    def get_title(self, obj: Sale) -> str:
+        return obj.product.title
+
+    def get_images(self, obj: Sale) -> List[str]:
+        return [str(img.src) for img in obj.product.get_images]
