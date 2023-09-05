@@ -62,6 +62,8 @@ INSTALLED_APPS = [
     'accounts.apps.AccountsConfig',
     'catalog.apps.CatalogConfig',
     'products.apps.ProductsConfig',
+    'cart.apps.CartConfig',
+    'orders.apps.OrdersConfig',
 ]
 
 MIDDLEWARE = [
@@ -150,3 +152,8 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+# APPEND_SLASH = False
+
+SESSION_EXPIRE_AT_BROWSER_CLOSE = True
+CART_SESSION_ID = "cart"
