@@ -26,7 +26,7 @@ class Command(BaseCommand):
                 fullDescription=f"Realy cool {product_titles[i]}",
                 category=Category.objects.get(name=categories_names[i]),
                 is_limited=bool(i % 2),
-                is_banner=i == 0,
+                freeDelivery=bool(i % 3),
             )
             for i in range(5)
         ]
