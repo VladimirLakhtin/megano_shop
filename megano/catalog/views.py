@@ -1,13 +1,14 @@
-from django.shortcuts import render
-from rest_framework import status
 from rest_framework.generics import ListAPIView
-from rest_framework.request import Request
-from rest_framework.response import Response
-from rest_framework.views import APIView
 
+from catalog.filters import (
+    CatalogProductsOrderingFilter,
+    CatalogTagsFilterBackend,
+    PopularProductsOrderingFilter,
+)
 from catalog.models import Category
-from catalog.serializers import CategorySerializer, CatalogSerializer
-from products.models import Product, Tag
+from catalog.pagination import CustomPagination
+from catalog.serializers import CategorySerializer, CatalogSerializer, SaleSerializer
+from products.models import Product, Tag, Sale
 from catalog.serializers import TagSerializer
 
 
@@ -23,40 +24,43 @@ class TagsListView(ListAPIView):
 
     queryset = Tag.objects.all()
     serializer_class = TagSerializer
+    filter_backends = [CatalogTagsFilterBackend]
 
 
-class CatalogListView(APIView):
-    def get(self, request: Request) -> Response:
-        params = request.GET
-        query = {
-            ''
-        }
-        products = Product.objects.filter(query)
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+class CatalogListView(ListAPIView):
+    """View for a list of products in catalog"""
 
+    queryset = Product.objects.all()
+    serializer_class = CatalogSerializer
+    pagination_class = CustomPagination
+    filter_backends = [CatalogProductsOrderingFilter]
 
 
 class PopularProductsListView(ListAPIView):
     """View for a list of popular products"""
 
-    ...
+    queryset = Product.objects.all()
+    serializer_class = CatalogSerializer
+    filter_backends = [PopularProductsOrderingFilter]
 
 
 class LimitedProductsListView(ListAPIView):
     """View for a list of limited products"""
 
-    queryset = Product.objects.filter(is_limited=True)
+    queryset = Product.objects.filter(is_limited=True)[:16]
     serializer_class = CatalogSerializer
 
 
 class SalesListView(ListAPIView):
     """View for a list of products sales"""
 
-    ...
-
+    queryset = Sale.objects.all()
+    serializer_class = SaleSerializer
+    pagination_class = CustomPagination
 
 
 class BannersListView(ListAPIView):
     """View for a list of banner products"""
 
-    ...
+    queryset = Product.objects.order_by('?')[:5]
+    serializer_class = CatalogSerializer
