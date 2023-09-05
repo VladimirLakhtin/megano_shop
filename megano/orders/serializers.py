@@ -1,7 +1,7 @@
 from rest_framework import serializers
 
 from catalog.serializers import CatalogSerializer
-from orders.models import Order
+from orders.models import Order, PaymentType, Status
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -15,6 +15,7 @@ class OrderSerializer(serializers.ModelSerializer):
         fields = 'createdAt', 'deliveryType', 'paymentType', 'totalCost', \
                  'status', 'city', 'address', 'fullName', 'phone', 'email', \
                  'products'
+        read_only_fields = 'createdAt',
 
     def get_fullName(self, obj: Order):
         return obj.profile.fullName
@@ -24,3 +25,22 @@ class OrderSerializer(serializers.ModelSerializer):
 
     def get_email(self, obj: Order):
         return obj.profile.email
+
+
+class CreateOrderSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Order
+        fields = 'profile', 'totalCost', 'products'
+
+    def create(self, validated_data):
+        order, _ = Order.objects.get_or_create(
+            profile=validated_data.get('profile'),
+            status_id=Status.get_default(),
+            paymentType_id=PaymentType.get_default(),
+            totalCost=self.context.get('cart').get_total_cost(),
+        )
+        for product in validated_data.get('products'):
+            order.products.add(product)
+        order.save()
+        return order
