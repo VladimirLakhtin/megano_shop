@@ -16,7 +16,7 @@ class CategoryImage(models.Model):
     )
 
     @property
-    def alt(self):
+    def alt(self) -> str:
         """Get alt for category image"""
 
         if self.src == self.default_path:
@@ -24,13 +24,13 @@ class CategoryImage(models.Model):
         return f"{self.category.get().name} image: {self.src.url.split('/')[-1]}"
 
     @classmethod
-    def get_default_pk(cls):
+    def get_default_pk(cls) -> int:
         """Get pk for default category image"""
 
         image, _ = cls.objects.get_or_create(src=cls.default_path)
         return image.pk
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}" \
                f"(category={self.category.get().name})"
 
@@ -56,5 +56,5 @@ class Category(models.Model):
         default=CategoryImage.get_default_pk,
     )
 
-    def __str__(self):
-        return f"{self.__class__.__name__}(name={self.name})"
+    def __str__(self) -> str:
+        return f"{self.__class__.__name__}(name={self.title})"

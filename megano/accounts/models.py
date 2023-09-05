@@ -20,7 +20,7 @@ class Avatar(models.Model):
         avatar, _ = cls.objects.get_or_create(src=cls.default_path)
         return avatar.pk
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.__class__.__name__}" \
                f"(username={Profile.objects.filter(avatar=self).get().user.username})"
 
@@ -61,6 +61,6 @@ class Profile(models.Model):
         default=Avatar.get_default_pk,
     )
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f'{self.__class__.__name__}' \
                f'(username={self.user.username})'
