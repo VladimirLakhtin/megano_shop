@@ -1,5 +1,6 @@
 from typing import Literal, Dict
 
+from decimal import Decimal
 from rest_framework.request import Request
 
 from megano import settings
@@ -48,3 +49,8 @@ class Cart:
                 raise ValueError('There is no such product in the cart')
             if product_info['count'] < count:
                 raise ValueError('There is no such quantity of product in the basket')
+
+    def get_total_cost(self):
+        return sum(
+            Decimal(item.get('price')) * item.get('count') for item in self.cart.values()
+        )
