@@ -1,7 +1,7 @@
 from django.core.management import BaseCommand
 
 from accounts.models import Profile
-from orders.models import Order, OrderDeliveryType, OrderPaymentType, OrderStatus
+from orders.models import Order, DeliveryType, PaymentType, Status
 from products.models import Product
 
 
@@ -13,25 +13,25 @@ class Command(BaseCommand):
         products = Product.objects.all()
         profiles = Profile.objects.all()
         deliveryTypes = [
-            OrderDeliveryType.objects.get_or_create(title='free')[0],
-            OrderDeliveryType.objects.get_or_create(title='paid')[0],
+            DeliveryType.objects.get_or_create(title='free')[0],
+            DeliveryType.objects.get_or_create(title='paid')[0],
         ]
         paymentTypes = [
-            OrderPaymentType.objects.get_or_create(title='paid')[0],
-            OrderPaymentType.objects.get_or_create(title='awaiting payment')[0],
+            PaymentType.objects.get_or_create(title='paid')[0],
+            PaymentType.objects.get_or_create(title='awaiting payment')[0],
         ]
         counts = [1, 2, 5, 10, 20]
-        statuses = OrderStatus.objects.all()
+        statuses = Status.objects.all()
         cities = ['Moscow', 'Krasnodar', 'Donetsk', 'Saratov', 'Samara']
         addresses = ['Krasnaya st. 24 54', 'Selesnyova st. 12 23',
                      'Artyoma ave. 143 23', 'Bloka st. 214 21', 'Pushkina ave. 124 43']
         orders = [
             Order.objects.get_or_create(
                 profile=profiles[i % 2],
-                deliveryType=deliveryTypes[i % 2],
-                paymentType=paymentTypes[i % 2],
+                deliveryType_id=deliveryTypes[i % 2],
+                paymentType_id=paymentTypes[i % 2],
                 totalCost=products[i].price * counts[i],
-                status=statuses[i],
+                status_id=statuses[i],
                 city=cities[i],
                 address=addresses[i],
             )[0]
