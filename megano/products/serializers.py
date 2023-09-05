@@ -1,6 +1,14 @@
 from rest_framework import serializers
 
-from products.models import Product, ProductImage, Review, ProductSpecification, Sale
+from products.models import Product, ProductImage, Review, ProductSpecification, Sale, Tag
+
+
+class TagSerializer(serializers.ModelSerializer):
+    """Serializer for product tag"""
+
+    class Meta:
+        model = Tag
+        fields = 'id', 'name'
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -24,8 +32,8 @@ class ReviewSerializer(serializers.ModelSerializer):
         Method that verifies the uniqueness of review author under a product
         """
 
-        profile = self.context.get('profile')
-        product = self.context.get('product')
+        profile = self.context.get('request').user.profile
+        product = Product.objects.get(pk=self.context.get('product_pk'))
         if Review.objects.filter(author=profile,
                                  product=product).exists():
             msg = 'This user has already left a review for this product'
@@ -56,7 +64,7 @@ class ProductSerializer(serializers.ModelSerializer):
 
     images = serializers.SerializerMethodField()
     reviews = ReviewSerializer(many=True)
-    tags = serializers.SerializerMethodField()
+    tags = TagSerializer(many=True)
     specifications = ProductSpecificationSerializer(many=True)
 
     class Meta:
@@ -67,9 +75,6 @@ class ProductSerializer(serializers.ModelSerializer):
                   'freeDelivery', 'freeDelivery',
                   'rating', 'images', 'tags',
                   'reviews', 'specifications')
-
-    def get_tags(self, obj):
-        return list(obj.tags.values_list('name', flat=True))
 
     def get_images(self, instance):
         images = instance.images.all()
