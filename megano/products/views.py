@@ -1,11 +1,9 @@
-from rest_framework import status
-from rest_framework.generics import get_object_or_404, RetrieveAPIView, CreateAPIView
-from rest_framework.request import Request
-from rest_framework.response import Response
-from rest_framework.views import APIView
+from rest_framework.generics import RetrieveAPIView, CreateAPIView
 
-from products.models import Product, Tag
+from products.models import Product
 from products.serializers import ProductSerializer, ReviewSerializer
+
+from products.models import Review
 
 
 class ProductDetailView(RetrieveAPIView):
@@ -18,18 +16,10 @@ class ProductDetailView(RetrieveAPIView):
 class CreateReviewView(CreateAPIView):
     """View for creating product review"""
 
-    queryset = 
+    queryset = Review.objects.all()
+    serializer_class = ReviewSerializer
 
-    def post(self, request: Request, pk) -> Response:
-        product = get_object_or_404(Product, pk=pk)
-        profile = request.user.profile
-
-        serializer = ReviewSerializer(
-            data=request.data,
-            context={'product': product, 'profile': profile}
-        )
-        if serializer.is_valid():
-            serializer.save()
-            return Response(status=status.HTTP_200_OK)
-        return Response(serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST)
+    def get_serializer_context(self):
+        result = super().get_serializer_context()
+        result['product_pk'] = self.kwargs['pk']
+        return result
