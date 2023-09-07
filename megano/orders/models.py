@@ -19,10 +19,6 @@ class DeliveryType(models.Model):
 class PaymentType(models.Model):
     title = models.CharField(max_length=30)
 
-    @classmethod
-    def get_default(cls):
-        return cls.objects.get_or_create(title='awaiting payment')[0]
-
 
 class Order(models.Model):
 
@@ -42,7 +38,7 @@ class Order(models.Model):
         PaymentType,
         related_name='orders',
         on_delete=models.PROTECT,
-        default=PaymentType.get_default(),
+        null=True
     )
     totalCost = models.DecimalField(
         default=0,
@@ -57,7 +53,11 @@ class Order(models.Model):
     )
     city = models.CharField(max_length=200)
     address = models.CharField(max_length=200)
-    products = models.ManyToManyField(Product, related_name='orders')
+    products = models.ManyToManyField(
+        Product,
+        related_name='orders',
+        through='OrderProducts',
+    )
 
     @property
     def status(self) -> Status:
@@ -76,3 +76,10 @@ class Order(models.Model):
 
     class Meta:
         ordering = ('-createdAt',)
+
+
+class OrderProducts(models.Model):
+
+    order = models.ForeignKey(Order, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.PROTECT)
+    count = models.PositiveIntegerField()
