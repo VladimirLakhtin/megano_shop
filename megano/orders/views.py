@@ -9,7 +9,9 @@ from rest_framework.views import APIView
 
 from cart.cart import Cart
 from orders.models import Order, Status
-from orders.serializers import OrderSerializer, CreateOrderSerializer, UpdateOrderSerializer
+from orders.permissions import IsOrderOwner
+from orders.serializers import OrderSerializer, \
+    CreateOrderSerializer, UpdateOrderSerializer
 
 
 class OrdersAPIView(APIView):
@@ -38,39 +40,42 @@ class OrdersAPIView(APIView):
 
 class OrderDetailsAPIView(APIView):
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated & IsOrderOwner]
 
     def get(self, request: Request, id: int) -> Response:
         order = get_object_or_404(Order, pk=id)
+        self.check_object_permissions(request, order)
         serializer = OrderSerializer(order)
         return Response(serializer.data,
                         status=status.HTTP_200_OK)
 
     def post(self, request: Request, id: int) -> Response:
         order = Order.objects.get(pk=id)
+        self.check_object_permissions(request, order)
         serializer = UpdateOrderSerializer(instance=order, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({'orderId': id},
                             status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 
 class PaymentAPIView(APIView):
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsAuthenticated & IsOrderOwner]
 
     def post(self, request: Request, id: int) -> Response:
         order = Order.objects.get(pk=id)
+        self.check_object_permissions(request, order)
         if self.is_valid(**request.data):
             order.status_id = Status.objects.get(title='paid')
             order.save()
             return Response(status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
     def is_valid(self, **kwargs):
         year = 2000 + int(kwargs['year'])
         month = int(kwargs['month'])
         validity_period = datetime(year=year, month=month, day=1)
-        return datetime.now() >= validity_period \
+        return datetime.now() < validity_period \
             and len(kwargs['code']) == 3
