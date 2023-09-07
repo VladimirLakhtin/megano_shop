@@ -1,7 +1,7 @@
 from django.core.management import BaseCommand
 
 from accounts.models import Profile
-from orders.models import Order, DeliveryType, PaymentType, Status
+from orders.models import Order, DeliveryType, PaymentType, Status, OrderProducts
 from products.models import Product
 
 
@@ -13,12 +13,12 @@ class Command(BaseCommand):
         products = Product.objects.all()
         profiles = Profile.objects.all()
         deliveryTypes = [
-            DeliveryType.objects.get_or_create(title='free')[0],
-            DeliveryType.objects.get_or_create(title='paid')[0],
+            DeliveryType.objects.get_or_create(title='ordinary')[0],
+            DeliveryType.objects.get_or_create(title='express')[0],
         ]
         paymentTypes = [
-            PaymentType.objects.get_or_create(title='paid')[0],
-            PaymentType.objects.get_or_create(title='awaiting payment')[0],
+            PaymentType.objects.get_or_create(title='online')[0],
+            PaymentType.objects.get_or_create(title='someone')[0],
         ]
         counts = [1, 2, 5, 10, 20]
         statuses = Status.objects.all()
@@ -39,7 +39,11 @@ class Command(BaseCommand):
         ]
 
         for i, product in enumerate(products[:5]):
-            orders[i].products.add(product)
+            OrderProducts.objects.get_or_create(
+                order=orders[i],
+                product=product,
+                count=counts[i]
+            )
 
         orders_str = [str(orders) for orders in orders]
         self.stdout.write(self.style.SUCCESS(f"Orders ({', '.join(orders_str)}) was successfully created"))
