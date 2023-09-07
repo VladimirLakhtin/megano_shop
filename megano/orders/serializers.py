@@ -1,21 +1,23 @@
 from rest_framework import serializers
 
+from cart.serializers import CartSerializer
 from catalog.serializers import CatalogSerializer
-from orders.models import Order, PaymentType, Status
+from orders.models import Order, PaymentType, OrderProducts, DeliveryType
+from products.models import Product
 
 
 class OrderSerializer(serializers.ModelSerializer):
+
     fullName = serializers.SerializerMethodField()
     phone = serializers.SerializerMethodField()
     email = serializers.SerializerMethodField()
-    products = CatalogSerializer(many=True)
+    products = serializers.SerializerMethodField()
 
     class Meta:
         model = Order
-        fields = 'createdAt', 'deliveryType', 'paymentType', 'totalCost', \
+        fields = 'id', 'createdAt', 'deliveryType', 'paymentType', 'totalCost', \
                  'status', 'city', 'address', 'fullName', 'phone', 'email', \
                  'products'
-        read_only_fields = 'createdAt',
 
     def get_fullName(self, obj: Order):
         return obj.profile.fullName
@@ -26,21 +28,74 @@ class OrderSerializer(serializers.ModelSerializer):
     def get_email(self, obj: Order):
         return obj.profile.email
 
+    def get_products(self, obj: Order):
+        product_counts = {
+            relation.product.pk: relation.count
+            for relation in obj.orderproducts_set.all()
+        }
+        serializer = CartSerializer(obj.products.all(), many=True, context=product_counts)
+        return serializer.data
+
 
 class CreateOrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = 'profile', 'totalCost', 'products'
+        fields = 'profile',
 
     def create(self, validated_data):
-        order, _ = Order.objects.get_or_create(
+        cart = self.context.get('cart')
+        order = Order.objects.create(
             profile=validated_data.get('profile'),
-            status_id=Status.get_default(),
-            paymentType_id=PaymentType.get_default(),
-            totalCost=self.context.get('cart').get_total_cost(),
+            totalCost=cart.get_total_cost(),
         )
-        for product in validated_data.get('products'):
-            order.products.add(product)
-        order.save()
+
+        for product_id in cart.cart.keys():
+            OrderProducts.objects.get_or_create(
+                order=order,
+                product=Product.objects.get(pk=product_id),
+                count=cart.cart[product_id]['count'],
+            )
         return order
+
+
+class UpdateOrderSerializer(serializers.ModelSerializer):
+    deliveryType = serializers.CharField(required=False)
+    paymentType = serializers.CharField(required=False)
+
+    class Meta:
+        model = Order
+        fields = 'city', 'address', 'deliveryType', 'paymentType', 'totalCost'
+
+    def validate(self, attrs):
+        delivery_types = DeliveryType.objects.values_list('title', flat=True)
+        deliveryType = attrs.get('deliveryType')
+        if attrs.get('deliveryType') not in delivery_types:
+            raise ValueError(f'Delivery type "{deliveryType}" is not exists')
+
+        payment_types = PaymentType.objects.values_list('title', flat=True)
+        paymentType = attrs.get('paymentType')
+        if attrs.get('paymentType') not in payment_types:
+            raise ValueError(f'Payment type "{paymentType}" is not exists')
+
+        attrs['deliveryType_id'] = DeliveryType.objects.get(title=deliveryType).pk
+        attrs['paymentType_id'] = PaymentType.objects.get(title=paymentType).pk
+        del attrs['deliveryType']
+        del attrs['paymentType']
+
+        if deliveryType == 'express':
+            attrs['totalCost'] += 50
+        elif attrs['totalCost'] < 200:
+            attrs['totalCost'] += 20
+
+        return attrs
+
+    def update(self, instance, validated_data):
+        Order.objects.filter(pk=instance.pk).update(**validated_data)
+
+        # for product in instance.products.all():
+        #     relationship = product.orderproducts_set.get(order=instance.pk)
+        #     product.count -= relationship.count
+        #     product.save()
+
+        return instance
