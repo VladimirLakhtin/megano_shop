@@ -1,4 +1,4 @@
-from django.db.models import Q
+from django.db.models import Q, Count
 from rest_framework import filters
 
 from catalog.models import Category
@@ -11,12 +11,19 @@ class CatalogProductsOrderingFilter(filters.OrderingFilter):
         sort_param = request.GET.get('sort')
         sort_type = request.GET.get('sortType')
         sort_symbol = '-' if sort_type == 'dec' else ''
+
         if sort_param == 'rating':
             return sorted(
                 queryset,
                 key=lambda x: x.rating,
                 reverse=sort_type == 'dec'
             )
+
+        if sort_param == 'reviews':
+            return queryset \
+                   .annotate(num_reviews=Count('reviews')) \
+                   .order_by(f'{sort_symbol}num_reviews')
+
         return queryset.order_by(sort_symbol + sort_param)
 
     def filter_queryset(self, request, queryset, view):
@@ -31,10 +38,13 @@ class CatalogProductsOrderingFilter(filters.OrderingFilter):
             'price__lte': int(data.get('filter[maxPrice]')),
             'freeDelivery': True if data.get('filter[freeDelivery]') == 'true' else None,
             'count__gte': 1 if data.get('filter[available]') == 'true' else None,
-            'tags__in': data.get('tags[]'),
         }
         actual_params = {k: v for k, v in params.items() if v is not None}
-        queryset = queryset.filter(**actual_params)
+        queryset = queryset.filter(**actual_params).distinct()
+
+        # filter products witch match all tags
+        for tag in data.getlist('tags[]'):
+            queryset = queryset.filter(tags=tag)
         queryset = self.get_ordering(request, queryset, view)
         return queryset
 
