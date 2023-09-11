@@ -33,6 +33,7 @@ class OrdersAPIView(APIView):
         )
         if serializer.is_valid():
             order = serializer.save()
+            cart.clear()
             return Response(data={'orderId': order.pk},
                             status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
