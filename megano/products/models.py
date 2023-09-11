@@ -16,7 +16,7 @@ class Tag(models.Model):
     )
 
     def __str__(self) -> str:
-        return f"{self.__class__.__name__}(name={self.name})"
+        return self.name
 
 
 class Product(models.Model):
@@ -44,6 +44,12 @@ class Product(models.Model):
     is_limited = models.BooleanField(default=False)
 
     @property
+    def salePrice(self):
+        sales = self.sales.values_list('sale', flat=True)
+        if sales:
+            return float(self.price) * (1 - float(max(sales)) / 100)
+
+    @property
     def rating(self):
         """Get average rating for product"""
 
@@ -58,15 +64,8 @@ class Product(models.Model):
             return [ProductImage.get_default()]
         return images
 
-    # @property
-    # def review_count(self):
-    #     """Get the number of product reviews"""
-    #
-    #     return self.reviews.annotate(Count("text"))[0]['text__count']
-
     def __str__(self) -> str:
-        return f"{self.__class__.__name__}" \
-               f"(title={self.title})"
+        return self.title
 
 
 class ProductSpecification(models.Model):
@@ -118,9 +117,7 @@ class ProductImage(models.Model):
         return image
 
     def __str__(self) -> str:
-        if self.src == self.default_path:
-            return f"{self.__class__.__name__}(DEFAULT)"
-        return f"{self.__class__.__name__}(product={self.product.title})"
+        return self.alt
 
 
 class Review(models.Model):
@@ -156,13 +153,15 @@ class Sale(models.Model):
         on_delete=models.CASCADE,
         related_name='sales',
     )
-    salePrice = models.DecimalField(
-        decimal_places=2,
-        max_digits=6,
+    sale = models.PositiveIntegerField(
         default=0,
     )
     dateFrom = models.DateField(default='')
     dateTo = models.DateField(blank=True, null=True)
+
+    @property
+    def salePrice(self):
+        return round(float(self.product.price) * (1 - self.sale / 100), 0)
 
     def __str__(self) -> str:
         return f"{self.__class__.__name__}" \
