@@ -10,7 +10,7 @@ class Command(BaseCommand):
     """Create 5 products"""
 
     def handle(self, *args, **options):
-        self.stdout.write('Create categories')
+        self.stdout.write('Create products')
         product_titles = ['Apple Mac Pro', 'Xiaomi bluetooth headphones',
                           'Iphone 14 pro', 'Lenovo a156', 'Magic Mouse']
         categories_names = ['Desktop', 'Headphones', 'Iphone', 'Laptop', 'Mouses']
