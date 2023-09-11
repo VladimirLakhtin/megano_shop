@@ -93,9 +93,9 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         Order.objects.filter(pk=instance.pk).update(**validated_data)
 
-        # for product in instance.products.all():
-        #     relationship = product.orderproducts_set.get(order=instance.pk)
-        #     product.count -= relationship.count
-        #     product.save()
+        for product in instance.products.all():
+            relationship = product.orderproducts_set.get(order=instance.pk)
+            product.count -= relationship.count
+            product.save()
 
         return instance
