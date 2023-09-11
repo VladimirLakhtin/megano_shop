@@ -8,16 +8,25 @@ class Status(models.Model):
     title = models.CharField(max_length=50)
 
     @classmethod
-    def get_default(cls):
-        return cls.objects.get_or_create(title='placed')[0]
+    def get_default_pk(cls):
+        return cls.objects.get_or_create(title='placed')[0].pk
+
+    def __str__(self) -> str:
+        return self.title
 
 
 class DeliveryType(models.Model):
     title = models.CharField(max_length=30)
 
+    def __str__(self) -> str:
+        return self.title
+
 
 class PaymentType(models.Model):
     title = models.CharField(max_length=30)
+
+    def __str__(self):
+        return self.title
 
 
 class Order(models.Model):
@@ -49,7 +58,7 @@ class Order(models.Model):
         Status,
         related_name='orders',
         on_delete=models.PROTECT,
-        default=Status.get_default(),
+        default=Status.get_default_pk,
     )
     city = models.CharField(max_length=200)
     address = models.CharField(max_length=200)

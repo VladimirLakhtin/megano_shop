@@ -10,19 +10,18 @@ class Avatar(models.Model):
     src = models.ImageField(upload_to='users/avatars/')
 
     @property
-    def alt(self):
+    def alt(self) -> str:
         if self.src == self.default_path:
             return 'Default avatar'
         return f'{Profile.objects.filter(avatar=self).get().user.username} avatar'
 
     @classmethod
-    def get_default_pk(cls):
+    def get_default_pk(cls) -> int:
         avatar, _ = cls.objects.get_or_create(src=cls.default_path)
         return avatar.pk
 
     def __str__(self) -> str:
-        return f"{self.__class__.__name__}" \
-               f"(username={Profile.objects.filter(avatar=self).get().user.username})"
+        return self.alt
 
 
 class Profile(models.Model):
@@ -62,5 +61,4 @@ class Profile(models.Model):
     )
 
     def __str__(self) -> str:
-        return f'{self.__class__.__name__}' \
-               f'(username={self.user.username})'
+        return self.user.username
