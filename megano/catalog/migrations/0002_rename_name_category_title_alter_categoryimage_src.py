@@ -19,6 +19,6 @@ class Migration(migrations.Migration):
         migrations.AlterField(
             model_name='categoryimage',
             name='src',
-            field=models.ImageField(upload_to=catalog.models.get_category_image_path, verbose_name='Ссылка'),
+            field=models.ImageField(upload_to='categories/images/', verbose_name='Ссылка'),
         ),
     ]
