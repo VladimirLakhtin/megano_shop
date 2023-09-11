@@ -12,16 +12,20 @@ class Cart:
         self.session = request.session
         self.cart = self.session.setdefault(settings.CART_SESSION_ID, {})
 
-    def save(self):
+    def save(self) -> None:
         self.session.save()
 
+    def clear(self) -> None:
+        del self.session[settings.CART_SESSION_ID]
+
     def add(self, product_id: int, count: int) -> None:
-        price = float(Product.objects.get(pk=product_id).price)
+        product = Product.objects.get(pk=product_id)
+        price = product.salePrice or product.price
         product_info = self.cart.setdefault(str(product_id), {'count': 0})
         self.is_valid(method='POST', count=count,
                       product_info=product_info, product_id=product_id)
         product_info['count'] += count
-        product_info['price'] = price
+        product_info['price'] = float(price)
         self.save()
 
     def remove(self, product_id: int, count: int) -> None:
@@ -37,7 +41,7 @@ class Cart:
 
     @staticmethod
     def is_valid(method: Literal['DELETE', 'POST'], count: int,
-                 product_info: Dict, product_id: int = None):
+                 product_info: Dict, product_id: int = None) -> None:
         if method == 'POST':
             product = Product.objects.get(pk=product_id)
             new_count = product_info['count'] + count
@@ -50,7 +54,7 @@ class Cart:
             if product_info['count'] < count:
                 raise ValueError('There is no such quantity of product in the basket')
 
-    def get_total_cost(self):
+    def get_total_cost(self) -> float:
         return sum(
             Decimal(item.get('price')) * item.get('count') for item in self.cart.values()
         )
