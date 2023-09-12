@@ -18,29 +18,9 @@ Django-ecommerce is an open-source ecommerce platform built on the Django Web Fr
 git clone https://github.com/VladimirLakhtin/megano_shop
 
 ```
-**2. Setup Virtualenv & Install Packages**
+**2. Build the images and run the containers**
 ```sh
-python -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-```
-**3. Install frontend app**
-```sh
-pip install frontend-0.6.tar.gz
-
-```
-**4. Migrate & load fixtures**
-```sh
-python manage.py migrate
-python manage.py loaddatautf8 accounts/fixtures/users_data.json
-python manage.py loaddatautf8 catalog/fixtures/catalog_data.json
-python manage.py loaddatautf8 products/fixtures/products_data.json
-python manage.py loaddatautf8 orders/fixtures/orders_data.json
-```
-**5. Start server**
-```sh
-python manage.py migrate
-python manage.py runserver
+docker compose up --build
 ```
 
 ## Where to find Me
