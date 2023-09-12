@@ -8,6 +8,8 @@ from products.models import Product
 
 
 class Cart:
+    """Cart model based session"""
+
     def __init__(self, request: Request):
         self.session = request.session
         self.cart = self.session.setdefault(settings.CART_SESSION_ID, {})

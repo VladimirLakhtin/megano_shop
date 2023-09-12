@@ -7,8 +7,9 @@ from accounts.models import Avatar, Profile
 
 class CreateUserSerializer(serializers.ModelSerializer):
     """
-    Serializer for creating user and his profile info.
+    Serializer for creating user and profile info.
     """
+
     class Meta:
         model = User
         fields = 'username', 'password', 'first_name',
@@ -27,12 +28,15 @@ class UpdatePasswordSerializer(serializers.Serializer):
     """
     Serializer for password change endpoint.
     """
+
     model = User
     passwordCurrent = serializers.CharField(required=True)
     password = serializers.CharField(required=True)
     passwordReply = serializers.CharField(required=True)
 
     def validate(self, attrs):
+        """Validate input passwords"""
+
         old_password = attrs.get('passwordCurrent')
         if not self.instance.check_password(old_password):
             msg = 'The current password is incorrect'
@@ -61,6 +65,8 @@ class AvatarSerializer(serializers.ModelSerializer):
         read_only_fields = 'alt',
 
     def validate(self, attrs):
+        """Validate file extension"""
+
         src = attrs.get('src')
         if not str(src).endswith(('.png', '.jpeg', '.jpg')):
             msg = "The file must have the following extensions: '.png', '.jpeg', '.jpg'"

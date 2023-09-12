@@ -7,6 +7,7 @@ from products.models import Product
 
 
 class OrderSerializer(serializers.ModelSerializer):
+    """Serializer for get order info"""
 
     fullName = serializers.SerializerMethodField()
     phone = serializers.SerializerMethodField()
@@ -38,6 +39,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
 
 class CreateOrderSerializer(serializers.ModelSerializer):
+    """Serializer for create order"""
 
     class Meta:
         model = Order
@@ -60,6 +62,8 @@ class CreateOrderSerializer(serializers.ModelSerializer):
 
 
 class UpdateOrderSerializer(serializers.ModelSerializer):
+    """Serializer for update order info"""
+
     deliveryType = serializers.CharField(required=False)
     paymentType = serializers.CharField(required=False)
 
@@ -68,21 +72,26 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
         fields = 'city', 'address', 'deliveryType', 'paymentType', 'totalCost'
 
     def validate(self, attrs):
+
+        # check existing delivery type
         delivery_types = DeliveryType.objects.values_list('title', flat=True)
         deliveryType = attrs.get('deliveryType')
         if attrs.get('deliveryType') not in delivery_types:
             raise ValueError(f'Delivery type "{deliveryType}" is not exists')
 
+        # check existing payment type
         payment_types = PaymentType.objects.values_list('title', flat=True)
         paymentType = attrs.get('paymentType')
         if attrs.get('paymentType') not in payment_types:
             raise ValueError(f'Payment type "{paymentType}" is not exists')
 
+        # add delivery and payment type ids in attrs
         attrs['deliveryType_id'] = DeliveryType.objects.get(title=deliveryType).pk
         attrs['paymentType_id'] = PaymentType.objects.get(title=paymentType).pk
         del attrs['deliveryType']
         del attrs['paymentType']
 
+        # increase in total cost depending on delivery
         if deliveryType == 'express':
             attrs['totalCost'] += 50
         elif attrs['totalCost'] < 200:
@@ -92,7 +101,6 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         Order.objects.filter(pk=instance.pk).update(**validated_data)
-
         for product in instance.products.all():
             relationship = product.orderproducts_set.get(order=instance.pk)
             product.count -= relationship.count

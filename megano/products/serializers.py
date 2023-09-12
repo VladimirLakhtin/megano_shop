@@ -1,3 +1,5 @@
+from typing import List
+
 from rest_framework import serializers
 
 from products.models import Product, ProductImage, Review, ProductSpecification, Sale, Tag
@@ -21,10 +23,10 @@ class ReviewSerializer(serializers.ModelSerializer):
         model = Review
         fields = 'author', 'email', 'text', 'rate', 'date'
 
-    def get_author(self, obj):
+    def get_author(self, obj: Product) -> str:
         return obj.author.fullName
 
-    def get_email(self, obj):
+    def get_email(self, obj: Product) -> str:
         return obj.author.email
 
     def validate(self, attrs):
@@ -76,8 +78,8 @@ class ProductSerializer(serializers.ModelSerializer):
                   'rating', 'images', 'tags',
                   'reviews', 'specifications')
 
-    def get_images(self, instance):
-        images = instance.images.all()
+    def get_images(self, obj: Product) -> List:
+        images = obj.images.all()
         if not images:
             default_image = ProductImage.get_default()
             return [ProductImageSerializer(default_image).data]

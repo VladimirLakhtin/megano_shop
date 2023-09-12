@@ -6,6 +6,7 @@ from products.models import Product
 
 
 class CatalogProductsOrderingFilter(filters.OrderingFilter):
+    """Filter products for catalog"""
 
     def get_ordering(self, request, queryset, view):
         sort_param = request.GET.get('sort')
@@ -50,6 +51,8 @@ class CatalogProductsOrderingFilter(filters.OrderingFilter):
 
 
 class CatalogTagsFilterBackend(filters.BaseFilterBackend):
+    """Filter tags for catalog"""
+
     def filter_queryset(self, request, queryset, view):
         category_pk = request.GET.get('category')
         if category_pk:
@@ -64,6 +67,8 @@ class CatalogTagsFilterBackend(filters.BaseFilterBackend):
 
 
 class PopularProductsOrderingFilter(filters.OrderingFilter):
+    """Filter products for popular bar"""
+
     def get_ordering(self, request, queryset, view):
         queryset.order_by('sort_index')
         return queryset

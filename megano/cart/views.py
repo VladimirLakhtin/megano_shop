@@ -10,6 +10,7 @@ from products.models import Product
 
 
 class CartApiView(APIView):
+    """View for get cart info, add and delete items"""
 
     def get(self, request: Request) -> Response:
         cart = Cart(request)

@@ -15,6 +15,7 @@ from orders.serializers import OrderSerializer, \
 
 
 class OrdersAPIView(APIView):
+    """View for get orders info and create it"""
 
     permission_classes = [IsAuthenticated]
 
@@ -40,6 +41,7 @@ class OrdersAPIView(APIView):
 
 
 class OrderDetailsAPIView(APIView):
+    """View for get and update order info"""
 
     permission_classes = [IsAuthenticated & IsOrderOwner]
 
@@ -62,6 +64,7 @@ class OrderDetailsAPIView(APIView):
 
 
 class PaymentAPIView(APIView):
+    """View for order payment"""
 
     permission_classes = [IsAuthenticated & IsOrderOwner]
 
@@ -74,7 +77,7 @@ class PaymentAPIView(APIView):
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
-    def is_valid(self, **kwargs):
+    def is_valid(self, **kwargs) -> bool:
         year = 2000 + int(kwargs['year'])
         month = int(kwargs['month'])
         validity_period = datetime(year=year, month=month, day=1)

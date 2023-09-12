@@ -4,12 +4,14 @@ from products.models import Product, ProductImage, Review, ProductSpecification,
 
 
 class ProductImageInline(admin.StackedInline):
+    """Product image inline model"""
 
     model = ProductImage
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
+    """Product admin model"""
 
     inlines = ProductImageInline,
 
@@ -41,6 +43,7 @@ class ProductAdmin(admin.ModelAdmin):
 
 @admin.register(Review)
 class ReviewAdmin(admin.ModelAdmin):
+    """Product review admin model"""
 
     list_display = 'author', 'text', 'rate', 'date', 'product'
     search_fields = 'text',
@@ -49,6 +52,7 @@ class ReviewAdmin(admin.ModelAdmin):
 
 @admin.register(ProductSpecification)
 class ProductSpecificationAdmin(admin.ModelAdmin):
+    """Product specification admin model"""
 
     list_display = "name", "value", "product"
     search_fields = "name",
@@ -57,10 +61,11 @@ class ProductSpecificationAdmin(admin.ModelAdmin):
 
 @admin.register(Sale)
 class SaleAdmin(admin.ModelAdmin):
+    """Product sale admin model"""
 
     list_display = "product", "sale", "dateTo", "dateFrom", "salePrice"
     list_filter = "dateTo", "dateFrom", 'sale'
     search_fields = "product",
 
-    def salePrice(self, obj) -> float:
+    def salePrice(self, obj: Sale) -> float:
         return obj.product.price * (1 - obj.sale)

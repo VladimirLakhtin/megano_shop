@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
 from catalog.serializers import CatalogSerializer
+from products.models import Product
 
 
 class CartSerializer(CatalogSerializer):
@@ -9,9 +10,9 @@ class CartSerializer(CatalogSerializer):
     count = serializers.SerializerMethodField()
     price = serializers.SerializerMethodField()
 
-    def get_count(self, obj):
+    def get_count(self, obj: Product):
         count = self.context.get(obj.pk)
         return count or self.context['cart'][str(obj.pk)]['count']
 
-    def get_price(self, obj):
+    def get_price(self, obj: Product):
         return obj.salePrice or obj.price

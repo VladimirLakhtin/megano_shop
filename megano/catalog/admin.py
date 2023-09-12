@@ -6,11 +6,13 @@ from products.models import Tag
 
 @admin.register(CategoryImage)
 class CategoryImageAdmin(admin.ModelAdmin):
+    """Category image admin model"""
 
     list_display = ['src', 'alt']
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
+    """Category admin model"""
 
     list_display = ["title", "src", "image", "parent"]
     list_filter = ["title", "parent"]
@@ -22,6 +24,7 @@ class CategoryAdmin(admin.ModelAdmin):
 
 @admin.register(Tag)
 class TagAdmin(admin.ModelAdmin):
+    """Tag admin model"""
 
     list_display = ["name"]
     search_fields = ["name"]

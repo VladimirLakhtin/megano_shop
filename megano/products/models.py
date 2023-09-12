@@ -1,4 +1,4 @@
-from typing import Iterable
+from typing import Iterable, Optional
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
@@ -44,16 +44,16 @@ class Product(models.Model):
     is_limited = models.BooleanField(default=False)
 
     @property
-    def salePrice(self):
+    def salePrice(self) -> Optional[float]:
         sales = self.sales.values_list('sale', flat=True)
         if sales:
             return float(self.price) * (1 - float(max(sales)) / 100)
 
     @property
-    def rating(self):
+    def rating(self) -> float:
         """Get average rating for product"""
 
-        return self.reviews.aggregate(Avg('rate'))['rate__avg']
+        return float(self.reviews.aggregate(Avg('rate'))['rate__avg'])
 
     @property
     def get_images(self) -> Iterable:
@@ -106,7 +106,7 @@ class ProductImage(models.Model):
     )
 
     @property
-    def alt(self):
+    def alt(self) -> str:
         if self.src == self.default_path:
             return 'Default product image'
         return f"{self.product.title} image: {self.src.url.split('/')[-1]}"
@@ -160,7 +160,7 @@ class Sale(models.Model):
     dateTo = models.DateField(blank=True, null=True)
 
     @property
-    def salePrice(self):
+    def salePrice(self) -> float:
         return round(float(self.product.price) * (1 - self.sale / 100), 0)
 
     def __str__(self) -> str:

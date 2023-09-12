@@ -5,6 +5,8 @@ from products.models import Product
 
 
 class Status(models.Model):
+    """Order status model"""
+
     title = models.CharField(max_length=50)
 
     @classmethod
@@ -16,6 +18,8 @@ class Status(models.Model):
 
 
 class DeliveryType(models.Model):
+    """Delivery type order model"""
+
     title = models.CharField(max_length=30)
 
     def __str__(self) -> str:
@@ -23,6 +27,8 @@ class DeliveryType(models.Model):
 
 
 class PaymentType(models.Model):
+    """Payment type order model"""
+
     title = models.CharField(max_length=30)
 
     def __str__(self):
@@ -30,6 +36,7 @@ class PaymentType(models.Model):
 
 
 class Order(models.Model):
+    """Order model"""
 
     profile = models.ForeignKey(
         Profile,
@@ -88,6 +95,7 @@ class Order(models.Model):
 
 
 class OrderProducts(models.Model):
+    """Custom may-to-many through model for Product and Order"""
 
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.PROTECT)

@@ -5,6 +5,8 @@ from accounts.models import Profile
 
 
 class ProfileInline(admin.StackedInline):
+    """Profile inline model"""
+
     model = Profile
     can_delete = False
     verbose_name_plural = 'Profile'
@@ -12,6 +14,8 @@ class ProfileInline(admin.StackedInline):
 
 
 class CustomUserAdmin(UserAdmin):
+    """User admin model"""
+
     inlines = (ProfileInline, )
     list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'get_full_name')
     list_select_related = ('profile', )
