@@ -13,16 +13,16 @@ class ProductImageInline(admin.StackedInline):
 class ProductAdmin(admin.ModelAdmin):
     """Product admin model"""
 
-    inlines = ProductImageInline,
+    inlines = (ProductImageInline,)
 
     list_display = [
-        'id',
-        'title',
-        'price',
-        'salePrice',
-        'count',
-        'category',
-        'freeDelivery',
+        "id",
+        "title",
+        "price",
+        "salePrice",
+        "count",
+        "category",
+        "freeDelivery",
         "is_limited",
         "sort_index",
         "rating",
@@ -32,7 +32,7 @@ class ProductAdmin(admin.ModelAdmin):
         "freeDelivery",
         "sort_index",
     ]
-    search_fields = ["title", 'fullDescription', 'description']
+    search_fields = ["title", "fullDescription", "description"]
 
     def rating(self, obj: Product) -> float:
         return obj.rating
@@ -45,9 +45,9 @@ class ProductAdmin(admin.ModelAdmin):
 class ReviewAdmin(admin.ModelAdmin):
     """Product review admin model"""
 
-    list_display = 'author', 'text', 'rate', 'date', 'product'
-    search_fields = 'text',
-    list_filter = 'author', 'date', 'product', 'rate'
+    list_display = "author", "text", "rate", "date", "product"
+    search_fields = ("text",)
+    list_filter = "author", "date", "product", "rate"
 
 
 @admin.register(ProductSpecification)
@@ -55,8 +55,8 @@ class ProductSpecificationAdmin(admin.ModelAdmin):
     """Product specification admin model"""
 
     list_display = "name", "value", "product"
-    search_fields = "name",
-    list_filter = "product",
+    search_fields = ("name",)
+    list_filter = ("product",)
 
 
 @admin.register(Sale)
@@ -64,8 +64,8 @@ class SaleAdmin(admin.ModelAdmin):
     """Product sale admin model"""
 
     list_display = "product", "sale", "dateTo", "dateFrom", "salePrice"
-    list_filter = "dateTo", "dateFrom", 'sale'
-    search_fields = "product",
+    list_filter = "dateTo", "dateFrom", "sale"
+    search_fields = ("product",)
 
     def salePrice(self, obj: Sale) -> float:
         return obj.product.price * (1 - obj.sale)

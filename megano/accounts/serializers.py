@@ -12,14 +12,18 @@ class CreateUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = 'username', 'password', 'first_name',
-        extra_kwargs = {'password': {'write_only': True}}
+        fields = (
+            "username",
+            "password",
+            "first_name",
+        )
+        extra_kwargs = {"password": {"write_only": True}}
 
     def create(self, validated_data):
         user = User.objects.create_user(**validated_data)
         Profile.objects.create(
             user=user,
-            fullName=validated_data.get('first_name'),
+            fullName=validated_data.get("first_name"),
         )
         return user
 
@@ -37,19 +41,19 @@ class UpdatePasswordSerializer(serializers.Serializer):
     def validate(self, attrs):
         """Validate input passwords"""
 
-        old_password = attrs.get('passwordCurrent')
+        old_password = attrs.get("passwordCurrent")
         if not self.instance.check_password(old_password):
-            msg = 'The current password is incorrect'
+            msg = "The current password is incorrect"
             raise ValidationError(msg)
 
-        if attrs.get('password') != attrs.get('passwordReply'):
+        if attrs.get("password") != attrs.get("passwordReply"):
             msg = "Passwords don't match"
             raise ValidationError(msg)
 
         return attrs
 
     def update(self, instance, validate_data):
-        instance.set_password(validate_data.get('password'))
+        instance.set_password(validate_data.get("password"))
         instance.save()
         return instance
 
@@ -61,21 +65,21 @@ class AvatarSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Avatar
-        fields = 'src', 'alt'
-        read_only_fields = 'alt',
+        fields = "src", "alt"
+        read_only_fields = ("alt",)
 
     def validate(self, attrs):
         """Validate file extension"""
 
-        src = attrs.get('src')
-        if not str(src).endswith(('.png', '.jpeg', '.jpg')):
+        src = attrs.get("src")
+        if not str(src).endswith((".png", ".jpeg", ".jpg")):
             msg = "The file must have the following extensions: '.png', '.jpeg', '.jpg'"
             raise ValidationError(msg)
         return attrs
 
     def create(self, validated_data):
-        avatar = Avatar.objects.create(src=validated_data.get('src'))
-        profile = validated_data.get('profile')
+        avatar = Avatar.objects.create(src=validated_data.get("src"))
+        profile = validated_data.get("profile")
 
         if profile.avatar.src != Avatar.default_path:
             profile.avatar.src.delete(save=False)
@@ -90,8 +94,9 @@ class ProfileSerializer(serializers.ModelSerializer):
     """
     Serializer for user profile info reading and changing.
     """
+
     avatar = AvatarSerializer(read_only=True)
 
     class Meta:
         model = Profile
-        fields = 'fullName', 'email', 'phone', 'avatar'
+        fields = "fullName", "email", "phone", "avatar"

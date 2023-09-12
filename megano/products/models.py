@@ -11,9 +11,7 @@ from catalog.models import Category
 class Tag(models.Model):
     """Product tag model"""
 
-    name = models.CharField(
-        max_length=100
-    )
+    name = models.CharField(max_length=100)
 
     def __str__(self) -> str:
         return self.name
@@ -33,19 +31,19 @@ class Product(models.Model):
     category = models.ForeignKey(
         Category,
         on_delete=models.SET_NULL,
-        related_name='products',
+        related_name="products",
         null=True,
     )
     tags = models.ManyToManyField(
         Tag,
-        related_name='products',
+        related_name="products",
         blank=True,
     )
     is_limited = models.BooleanField(default=False)
 
     @property
     def salePrice(self) -> Optional[float]:
-        sales = self.sales.values_list('sale', flat=True)
+        sales = self.sales.values_list("sale", flat=True)
         if sales:
             return float(self.price) * (1 - float(max(sales)) / 100)
 
@@ -53,7 +51,7 @@ class Product(models.Model):
     def rating(self) -> float:
         """Get average rating for product"""
 
-        return float(self.reviews.aggregate(Avg('rate'))['rate__avg'])
+        return float(self.reviews.aggregate(Avg("rate"))["rate__avg"])
 
     @property
     def get_images(self) -> Iterable:
@@ -71,7 +69,9 @@ class Product(models.Model):
 class ProductSpecification(models.Model):
     """Product specification model"""
 
-    product = models.ForeignKey(Product, on_delete=models.PROTECT, related_name="specifications")
+    product = models.ForeignKey(
+        Product, on_delete=models.PROTECT, related_name="specifications"
+    )
     name = models.CharField(max_length=256, default="")
     value = models.CharField(max_length=256, default="")
 
@@ -80,19 +80,21 @@ class ProductSpecification(models.Model):
         verbose_name_plural = "Product specifications"
 
     def __str__(self) -> str:
-        return f"{self.__class__.__name__}" \
-               f"(product={self.product.title}, " \
-               f"name={self.name})"
+        return (
+            f"{self.__class__.__name__}"
+            f"(product={self.product.title}, "
+            f"name={self.name})"
+        )
 
 
-def get_product_image_path(instance: 'ProductImage', filename: str) -> str:
+def get_product_image_path(instance: "ProductImage", filename: str) -> str:
     return f"products/images/product_{instance.product.pk}/{filename}"
 
 
 class ProductImage(models.Model):
     """Product image model"""
 
-    default_path = 'products/images/default.png'
+    default_path = "products/images/default.png"
 
     product = models.ForeignKey(
         Product,
@@ -102,13 +104,13 @@ class ProductImage(models.Model):
     )
     src = models.ImageField(
         upload_to=get_product_image_path,
-        verbose_name='Ссылка',
+        verbose_name="Ссылка",
     )
 
     @property
     def alt(self) -> str:
         if self.src == self.default_path:
-            return 'Default product image'
+            return "Default product image"
         return f"{self.product.title} image: {self.src.url.split('/')[-1]}"
 
     @classmethod
@@ -136,13 +138,15 @@ class Review(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name='reviews',
+        related_name="reviews",
     )
 
     def __str__(self) -> str:
-        return f"{self.__class__.__name__}" \
-               f"(product={self.product}, " \
-               f"author={self.author})"
+        return (
+            f"{self.__class__.__name__}"
+            f"(product={self.product}, "
+            f"author={self.author})"
+        )
 
 
 class Sale(models.Model):
@@ -151,12 +155,12 @@ class Sale(models.Model):
     product = models.ForeignKey(
         Product,
         on_delete=models.CASCADE,
-        related_name='sales',
+        related_name="sales",
     )
     sale = models.PositiveIntegerField(
         default=0,
     )
-    dateFrom = models.DateField(default='')
+    dateFrom = models.DateField(default="")
     dateTo = models.DateField(blank=True, null=True)
 
     @property
@@ -164,5 +168,4 @@ class Sale(models.Model):
         return round(float(self.product.price) * (1 - self.sale / 100), 0)
 
     def __str__(self) -> str:
-        return f"{self.__class__.__name__}" \
-               f"(product={self.product.title})"
+        return f"{self.__class__.__name__}" f"(product={self.product.title})"

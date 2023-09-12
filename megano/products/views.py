@@ -21,5 +21,5 @@ class CreateReviewView(CreateAPIView):
 
     def get_serializer_context(self):
         result = super().get_serializer_context()
-        result['product_pk'] = self.kwargs['pk']
+        result["product_pk"] = self.kwargs["pk"]
         return result

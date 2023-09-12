@@ -62,5 +62,5 @@ class SalesListView(ListAPIView):
 class BannersListView(ListAPIView):
     """View for a list of banner products"""
 
-    queryset = Product.objects.order_by('?')[:5]
+    queryset = Product.objects.order_by("?")[:5]
     serializer_class = CatalogSerializer

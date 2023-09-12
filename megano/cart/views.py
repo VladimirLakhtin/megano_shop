@@ -15,23 +15,18 @@ class CartApiView(APIView):
     def get(self, request: Request) -> Response:
         cart = Cart(request)
         queryset = Product.objects.filter(pk__in=cart.cart.keys())
-        serializer = CartSerializer(
-            queryset,
-            many=True,
-            context={'cart': cart.cart}
-        )
+        serializer = CartSerializer(queryset, many=True, context={"cart": cart.cart})
         return Response(serializer.data)
 
     def post(self, request: Request) -> Response:
         cart = Cart(request)
         try:
             cart.add(
-                product_id=request.data.get('id'),
-                count=int(request.data.get('count')),
+                product_id=request.data.get("id"),
+                count=int(request.data.get("count")),
             )
         except ValueError as e:
-            return Response(str(e),
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
         data = self.get(request).data
         return Response(data, status=status.HTTP_200_OK)
 
@@ -39,11 +34,10 @@ class CartApiView(APIView):
         cart = Cart(request)
         try:
             cart.remove(
-                product_id=request.data.get('id'),
-                count=request.data.get('count'),
+                product_id=request.data.get("id"),
+                count=request.data.get("count"),
             )
         except ValueError as e:
-            return Response(str(e),
-                            status=status.HTTP_400_BAD_REQUEST)
+            return Response(str(e), status=status.HTTP_400_BAD_REQUEST)
         data = self.get(request).data
         return Response(data, status=status.HTTP_200_OK)

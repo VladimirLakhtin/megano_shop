@@ -20,8 +20,8 @@ class SignInView(APIView):
 
     def post(self, request: Request) -> Response:
         user_data = json.loads(list(request.POST.keys())[0])
-        username = user_data.get('username')
-        password = user_data.get('password')
+        username = user_data.get("username")
+        password = user_data.get("password")
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
@@ -34,19 +34,18 @@ class SignUpView(APIView):
 
     def post(self, request: Request) -> Response:
         user_data = json.loads(list(request.POST.keys())[0])
-        user_data['first_name'] = user_data.get('name')
+        user_data["first_name"] = user_data.get("name")
         serializer = CreateUserSerializer(data=user_data)
         if serializer.is_valid():
             serializer.save()
             user = authenticate(
                 request,
-                username=user_data.get('username'),
-                password=user_data.get('password'),
+                username=user_data.get("username"),
+                password=user_data.get("password"),
             )
             login(request, user)
             return Response(status=status.HTTP_201_CREATED)
-        return Response(serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class SignOutView(APIView):
@@ -73,8 +72,7 @@ class ProfileDetailsView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
-        return Response(serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UpdatePasswordView(APIView):
@@ -91,8 +89,7 @@ class UpdatePasswordView(APIView):
         if serializer.is_valid():
             serializer.save()
             return Response(status=status.HTTP_200_OK)
-        return Response(serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UpdateAvatarView(APIView):
@@ -103,10 +100,9 @@ class UpdateAvatarView(APIView):
     def post(self, request: Request) -> Response:
         user = request.user
         profile = Profile.objects.get(user=user)
-        avatar_file = request.FILES.get('avatar', None)
-        serializer = AvatarSerializer(data={'src': avatar_file})
+        avatar_file = request.FILES.get("avatar", None)
+        serializer = AvatarSerializer(data={"src": avatar_file})
         if serializer.is_valid():
             serializer.save(profile=profile)
             return Response(status=status.HTTP_200_OK)
-        return Response(serializer.errors,
-                        status=status.HTTP_400_BAD_REQUEST)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

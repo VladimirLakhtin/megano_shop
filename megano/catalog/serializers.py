@@ -13,7 +13,7 @@ class CategoryImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CategoryImage
-        fields = 'src', 'alt'
+        fields = "src", "alt"
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -24,15 +24,15 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = 'id', 'title', 'image', 'subcategories'
+        fields = "id", "title", "image", "subcategories"
 
     def get_subcategories(self, obj: Category) -> List[Dict]:
         subcategories = list(obj.children.all())
         subcategories_data = [
             {
-                'id': subcategory.pk,
-                'title': subcategory.title,
-                'image': CategoryImageSerializer(subcategory.image).data,
+                "id": subcategory.pk,
+                "title": subcategory.title,
+                "image": CategoryImageSerializer(subcategory.image).data,
             }
             for subcategory in subcategories
         ]
@@ -47,12 +47,12 @@ class CatalogSerializer(ProductSerializer):
 
     class Meta:
         model = Product
-        fields_to_remove = {'fullDescription', 'specifications'}
+        fields_to_remove = {"fullDescription", "specifications"}
         parent_fields = set(ProductSerializer.Meta.fields)
         fields = tuple(parent_fields - fields_to_remove)
 
     def get_reviews(self, obj: Product) -> QuerySet:
-        return obj.reviews.aggregate(Count("text")).get('text__count')
+        return obj.reviews.aggregate(Count("text")).get("text__count")
 
 
 class SaleSerializer(serializers.ModelSerializer):
@@ -65,8 +65,7 @@ class SaleSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sale
-        fields = 'id', 'price', 'salePrice', \
-            'dateFrom', 'dateTo', 'title', 'images'
+        fields = "id", "price", "salePrice", "dateFrom", "dateTo", "title", "images"
 
     def get_id(self, obj: Sale) -> int:
         return obj.product.id

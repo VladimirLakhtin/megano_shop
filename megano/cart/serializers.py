@@ -12,7 +12,7 @@ class CartSerializer(CatalogSerializer):
 
     def get_count(self, obj: Product):
         count = self.context.get(obj.pk)
-        return count or self.context['cart'][str(obj.pk)]['count']
+        return count or self.context["cart"][str(obj.pk)]["count"]
 
     def get_price(self, obj: Product):
         return obj.salePrice or obj.price

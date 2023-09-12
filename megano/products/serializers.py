@@ -2,7 +2,14 @@ from typing import List
 
 from rest_framework import serializers
 
-from products.models import Product, ProductImage, Review, ProductSpecification, Sale, Tag
+from products.models import (
+    Product,
+    ProductImage,
+    Review,
+    ProductSpecification,
+    Sale,
+    Tag,
+)
 
 
 class TagSerializer(serializers.ModelSerializer):
@@ -10,7 +17,7 @@ class TagSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Tag
-        fields = 'id', 'name'
+        fields = "id", "name"
 
 
 class ReviewSerializer(serializers.ModelSerializer):
@@ -21,7 +28,7 @@ class ReviewSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Review
-        fields = 'author', 'email', 'text', 'rate', 'date'
+        fields = "author", "email", "text", "rate", "date"
 
     def get_author(self, obj: Product) -> str:
         return obj.author.fullName
@@ -34,14 +41,13 @@ class ReviewSerializer(serializers.ModelSerializer):
         Method that verifies the uniqueness of review author under a product
         """
 
-        profile = self.context.get('request').user.profile
-        product = Product.objects.get(pk=self.context.get('product_pk'))
-        if Review.objects.filter(author=profile,
-                                 product=product).exists():
-            msg = 'This user has already left a review for this product'
+        profile = self.context.get("request").user.profile
+        product = Product.objects.get(pk=self.context.get("product_pk"))
+        if Review.objects.filter(author=profile, product=product).exists():
+            msg = "This user has already left a review for this product"
             raise serializers.ValidationError(msg)
-        attrs['author'] = profile
-        attrs['product'] = product
+        attrs["author"] = profile
+        attrs["product"] = product
         return attrs
 
 
@@ -50,7 +56,7 @@ class ProductImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ProductImage
-        fields = 'src', 'alt'
+        fields = "src", "alt"
 
 
 class ProductSpecificationSerializer(serializers.ModelSerializer):
@@ -71,12 +77,23 @@ class ProductSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Product
-        fields = ('id', 'category', 'price',
-                  'count', 'date', 'title',
-                  'description', 'fullDescription',
-                  'freeDelivery', 'freeDelivery',
-                  'rating', 'images', 'tags',
-                  'reviews', 'specifications')
+        fields = (
+            "id",
+            "category",
+            "price",
+            "count",
+            "date",
+            "title",
+            "description",
+            "fullDescription",
+            "freeDelivery",
+            "freeDelivery",
+            "rating",
+            "images",
+            "tags",
+            "reviews",
+            "specifications",
+        )
 
     def get_images(self, obj: Product) -> List:
         images = obj.images.all()
@@ -84,10 +101,7 @@ class ProductSerializer(serializers.ModelSerializer):
             default_image = ProductImage.get_default()
             return [ProductImageSerializer(default_image).data]
 
-        images_data = [
-            ProductImageSerializer(image).data
-            for image in images
-        ]
+        images_data = [ProductImageSerializer(image).data for image in images]
         return images_data
 
 
@@ -96,4 +110,4 @@ class SalesSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Sale
-        fields = 'id', 'price', 'salePrice', 'dateFrom', 'dateTo', 'title', 'images'
+        fields = "id", "price", "salePrice", "dateFrom", "dateTo", "title", "images"

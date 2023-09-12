@@ -8,7 +8,8 @@ from products.models import Tag
 class CategoryImageAdmin(admin.ModelAdmin):
     """Category image admin model"""
 
-    list_display = ['src', 'alt']
+    list_display = ["src", "alt"]
+
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
@@ -28,5 +29,3 @@ class TagAdmin(admin.ModelAdmin):
 
     list_display = ["name"]
     search_fields = ["name"]
-
-

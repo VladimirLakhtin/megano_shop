@@ -11,7 +11,7 @@ class Status(models.Model):
 
     @classmethod
     def get_default_pk(cls):
-        return cls.objects.get_or_create(title='placed')[0].pk
+        return cls.objects.get_or_create(title="placed")[0].pk
 
     def __str__(self) -> str:
         return self.title
@@ -39,22 +39,17 @@ class Order(models.Model):
     """Order model"""
 
     profile = models.ForeignKey(
-        Profile,
-        related_name='orders',
-        on_delete=models.PROTECT
+        Profile, related_name="orders", on_delete=models.PROTECT
     )
     createdAt = models.DateTimeField(auto_now=True)
     deliveryType_id = models.ForeignKey(
         DeliveryType,
-        related_name='orders',
+        related_name="orders",
         on_delete=models.PROTECT,
         null=True,
     )
     paymentType_id = models.ForeignKey(
-        PaymentType,
-        related_name='orders',
-        on_delete=models.PROTECT,
-        null=True
+        PaymentType, related_name="orders", on_delete=models.PROTECT, null=True
     )
     totalCost = models.DecimalField(
         default=0,
@@ -63,7 +58,7 @@ class Order(models.Model):
     )
     status_id = models.ForeignKey(
         Status,
-        related_name='orders',
+        related_name="orders",
         on_delete=models.PROTECT,
         default=Status.get_default_pk,
     )
@@ -71,8 +66,8 @@ class Order(models.Model):
     address = models.CharField(max_length=200)
     products = models.ManyToManyField(
         Product,
-        related_name='orders',
-        through='OrderProducts',
+        related_name="orders",
+        through="OrderProducts",
     )
 
     @property
@@ -88,10 +83,10 @@ class Order(models.Model):
         return self.paymentType_id.title
 
     def __str__(self) -> str:
-        return f'{self.__class__}(username={self.profile.fullName}, totalCost={self.totalCost})'
+        return f"{self.__class__}(username={self.profile.fullName}, totalCost={self.totalCost})"
 
     class Meta:
-        ordering = ('-createdAt',)
+        ordering = ("-createdAt",)
 
 
 class OrderProducts(models.Model):

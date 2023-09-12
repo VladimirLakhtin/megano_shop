@@ -10,10 +10,15 @@ class Command(BaseCommand):
     """Create 5 products"""
 
     def handle(self, *args, **options):
-        self.stdout.write('Create products')
-        product_titles = ['Apple Mac Pro', 'Xiaomi bluetooth headphones',
-                          'Iphone 14 pro', 'Lenovo a156', 'Magic Mouse']
-        categories_names = ['Desktop', 'Headphones', 'Iphone', 'Laptop', 'Mouses']
+        self.stdout.write("Create products")
+        product_titles = [
+            "Apple Mac Pro",
+            "Xiaomi bluetooth headphones",
+            "Iphone 14 pro",
+            "Lenovo a156",
+            "Magic Mouse",
+        ]
+        categories_names = ["Desktop", "Headphones", "Iphone", "Laptop", "Mouses"]
         tags = list(Tag.objects.all())
         prices = list(range(100, 1001, 200))
         counts = list(range(10, 101, 20))
@@ -40,4 +45,8 @@ class Command(BaseCommand):
                     product[0].tags.add(tag_2)
 
         products_str = [str(product[0]) for product in products]
-        self.stdout.write(self.style.SUCCESS(f"Products ({', '.join(products_str)}) was successfully created"))
+        self.stdout.write(
+            self.style.SUCCESS(
+                f"Products ({', '.join(products_str)}) was successfully created"
+            )
+        )

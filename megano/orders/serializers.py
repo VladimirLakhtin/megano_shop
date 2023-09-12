@@ -16,9 +16,20 @@ class OrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = 'id', 'createdAt', 'deliveryType', 'paymentType', 'totalCost', \
-                 'status', 'city', 'address', 'fullName', 'phone', 'email', \
-                 'products'
+        fields = (
+            "id",
+            "createdAt",
+            "deliveryType",
+            "paymentType",
+            "totalCost",
+            "status",
+            "city",
+            "address",
+            "fullName",
+            "phone",
+            "email",
+            "products",
+        )
 
     def get_fullName(self, obj: Order):
         return obj.profile.fullName
@@ -34,7 +45,9 @@ class OrderSerializer(serializers.ModelSerializer):
             relation.product.pk: relation.count
             for relation in obj.orderproducts_set.all()
         }
-        serializer = CartSerializer(obj.products.all(), many=True, context=product_counts)
+        serializer = CartSerializer(
+            obj.products.all(), many=True, context=product_counts
+        )
         return serializer.data
 
 
@@ -43,12 +56,12 @@ class CreateOrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = 'profile',
+        fields = ("profile",)
 
     def create(self, validated_data):
-        cart = self.context.get('cart')
+        cart = self.context.get("cart")
         order = Order.objects.create(
-            profile=validated_data.get('profile'),
+            profile=validated_data.get("profile"),
             totalCost=cart.get_total_cost(),
         )
 
@@ -56,7 +69,7 @@ class CreateOrderSerializer(serializers.ModelSerializer):
             OrderProducts.objects.get_or_create(
                 order=order,
                 product=Product.objects.get(pk=product_id),
-                count=cart.cart[product_id]['count'],
+                count=cart.cart[product_id]["count"],
             )
         return order
 
@@ -69,33 +82,32 @@ class UpdateOrderSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Order
-        fields = 'city', 'address', 'deliveryType', 'paymentType', 'totalCost'
+        fields = "city", "address", "deliveryType", "paymentType", "totalCost"
 
     def validate(self, attrs):
-
         # check existing delivery type
-        delivery_types = DeliveryType.objects.values_list('title', flat=True)
-        deliveryType = attrs.get('deliveryType')
-        if attrs.get('deliveryType') not in delivery_types:
+        delivery_types = DeliveryType.objects.values_list("title", flat=True)
+        deliveryType = attrs.get("deliveryType")
+        if attrs.get("deliveryType") not in delivery_types:
             raise ValueError(f'Delivery type "{deliveryType}" is not exists')
 
         # check existing payment type
-        payment_types = PaymentType.objects.values_list('title', flat=True)
-        paymentType = attrs.get('paymentType')
-        if attrs.get('paymentType') not in payment_types:
+        payment_types = PaymentType.objects.values_list("title", flat=True)
+        paymentType = attrs.get("paymentType")
+        if attrs.get("paymentType") not in payment_types:
             raise ValueError(f'Payment type "{paymentType}" is not exists')
 
         # add delivery and payment type ids in attrs
-        attrs['deliveryType_id'] = DeliveryType.objects.get(title=deliveryType).pk
-        attrs['paymentType_id'] = PaymentType.objects.get(title=paymentType).pk
-        del attrs['deliveryType']
-        del attrs['paymentType']
+        attrs["deliveryType_id"] = DeliveryType.objects.get(title=deliveryType).pk
+        attrs["paymentType_id"] = PaymentType.objects.get(title=paymentType).pk
+        del attrs["deliveryType"]
+        del attrs["paymentType"]
 
         # increase in total cost depending on delivery
-        if deliveryType == 'express':
-            attrs['totalCost'] += 50
-        elif attrs['totalCost'] < 200:
-            attrs['totalCost'] += 20
+        if deliveryType == "express":
+            attrs["totalCost"] += 50
+        elif attrs["totalCost"] < 200:
+            attrs["totalCost"] += 20
 
         return attrs
 
