@@ -2,7 +2,6 @@ from typing import Iterable, Optional
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from django.db.models import Avg
 
 from accounts.models import Profile
 from catalog.models import Category
@@ -149,9 +148,7 @@ class Sale(models.Model):
         on_delete=models.CASCADE,
         related_name="sales",
     )
-    sale = models.PositiveIntegerField(
-        default=0,
-    )
+    sale = models.PositiveIntegerField(default=0)
     dateFrom = models.DateField(default="")
     dateTo = models.DateField(blank=True, null=True)
 
