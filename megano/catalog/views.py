@@ -15,7 +15,11 @@ from catalog.serializers import TagSerializer
 class CategoriesListView(ListAPIView):
     """View for a list of products categories"""
 
-    queryset = Category.objects.filter(parent__isnull=True).all()
+    queryset = Category.objects\
+        .filter(parent__isnull=True)\
+        .all()\
+        .select_related('image')\
+        .prefetch_related('children__image')
     serializer_class = CategorySerializer
 
 

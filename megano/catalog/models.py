@@ -1,6 +1,10 @@
 from django.db import models
 
 
+def get_category_image_alt(obj: 'CategoryImage') -> str:
+    return f'{obj.category.get().title} image'
+
+
 class CategoryImage(models.Model):
     """Product category image model"""
 
@@ -11,13 +15,15 @@ class CategoryImage(models.Model):
         verbose_name="Ссылка",
     )
 
-    @property
-    def alt(self) -> str:
-        """Get alt for category image"""
+    alt = models.CharField(max_length=100)
 
-        if self.src == self.default_path or not self.category.all():
-            return "Default category image"
-        return f"{self.category.get().title} image: {self.src.url.split('/')[-1]}"
+    # @property
+    # def alt(self) -> str:
+    #     """Get alt for category image"""
+    #
+    #     if self.src == self.default_path or not self.category.all():
+    #         return "Default category image"
+    #     return f"{self.category.get().title} image: {self.src.url.split('/')[-1]}"
 
     @classmethod
     def get_default_pk(cls) -> int:
