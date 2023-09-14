@@ -18,13 +18,18 @@ from orders.serializers import (
 
 
 class OrdersAPIView(APIView):
-    """View for get orders info and create it"""
+    """View for get and create orders info"""
 
     permission_classes = [IsAuthenticated]
 
     def get(self, request: Request) -> Response:
         profile = request.user.profile
-        queryset = Order.objects.filter(profile=profile)
+        queryset = Order.objects.filter(profile=profile)\
+            .prefetch_related('products')\
+            .select_related('profile')\
+            .select_related('deliveryType_id')\
+            .select_related('paymentType_id')\
+            .select_related('status_id')
         serializer = OrderSerializer(queryset, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 

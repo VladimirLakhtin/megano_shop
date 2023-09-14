@@ -45,6 +45,11 @@ class OrderSerializer(serializers.ModelSerializer):
             relation.product.pk: relation.count
             for relation in obj.orderproducts_set.all()
         }
+        queryset = obj.products.all()\
+            .annotate(rating=Avg('reviews__rate'),
+                      count_reviews=Count('reviews'))\
+            .prefetch_related('tags')\
+            .prefetch_related('images')
         serializer = CartSerializer(
             obj.products.all(), many=True, context=product_counts
         )

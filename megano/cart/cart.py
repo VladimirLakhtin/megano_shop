@@ -25,7 +25,7 @@ class Cart:
         price = product.salePrice or product.price
         product_info = self.cart.setdefault(str(product_id), {"count": 0})
         self.is_valid(
-            method="POST", count=count, product_info=product_info, product_id=product_id
+            method="POST", count=count, product_info=product_info, product=product
         )
         product_info["count"] += count
         product_info["price"] = float(price)
@@ -46,10 +46,9 @@ class Cart:
         method: Literal["DELETE", "POST"],
         count: int,
         product_info: Dict,
-        product_id: int = None,
+        product: int = None,
     ) -> None:
         if method == "POST":
-            product = Product.objects.get(pk=product_id)
             new_count = product_info["count"] + count
             if product.count < new_count:
                 raise ValueError("The quantity of the product is not enough")
@@ -61,7 +60,8 @@ class Cart:
                 raise ValueError("There is no such quantity of product in the basket")
 
     def get_total_cost(self) -> float:
-        return sum(
-            Decimal(item.get("price")) * item.get("count")
-            for item in self.cart.values()
-        )
+        summ = sum(
+                Decimal(item.get("price")) * item.get("count")
+                for item in self.cart.values()
+            )
+        return round(float(summ), 2)
