@@ -1,3 +1,4 @@
+from django.db.models import Avg, Count
 from rest_framework.generics import ListAPIView
 
 from catalog.filters import (
@@ -31,40 +32,56 @@ class TagsListView(ListAPIView):
     filter_backends = [CatalogTagsFilterBackend]
 
 
-class CatalogListView(ListAPIView):
+class BaseCatalogListView(ListAPIView):
+    """Base view for a list products in catalog"""
+
+    serializer_class = CatalogSerializer
+
+    def get_queryset(self):
+        return Product.objects.all() \
+        .annotate(rating=Avg('reviews__rate'),
+                  count_reviews=Count('reviews')) \
+        .prefetch_related('tags') \
+        .prefetch_related('images')
+
+
+class CatalogListView(BaseCatalogListView):
     """View for a list of products in catalog"""
 
-    queryset = Product.objects.all()
-    serializer_class = CatalogSerializer
     pagination_class = CustomPagination
     filter_backends = [CatalogProductsOrderingFilter]
 
+    def filter_queryset(self, queryset):
+        return CatalogProductsOrderingFilter().filter_queryset(self.request, queryset, self)
 
-class PopularProductsListView(ListAPIView):
+class PopularProductsListView(BaseCatalogListView):
     """View for a list of popular products"""
 
-    queryset = Product.objects.all()
-    serializer_class = CatalogSerializer
-    filter_backends = [PopularProductsOrderingFilter]
+    # filter_backends = [PopularProductsOrderingFilter]
+
+    def filter_queryset(self, queryset):
+        return queryset.order_by('sort_index')[:8]
 
 
-class LimitedProductsListView(ListAPIView):
+class LimitedProductsListView(BaseCatalogListView):
     """View for a list of limited products"""
 
-    queryset = Product.objects.filter(is_limited=True)[:16]
-    serializer_class = CatalogSerializer
+    def filter_queryset(self, queryset):
+        return queryset[:16]
+
+
+class BannersListView(BaseCatalogListView):
+    """View for a list of banner products"""
+
+    def filter_queryset(self, queryset):
+        return queryset.order_by('?')[:5]
 
 
 class SalesListView(ListAPIView):
     """View for a list of products sales"""
 
-    queryset = Sale.objects.all()
+    queryset = Sale.objects.all()\
+        .select_related('product')\
+        .prefetch_related('product__images')
     serializer_class = SaleSerializer
     pagination_class = CustomPagination
-
-
-class BannersListView(ListAPIView):
-    """View for a list of banner products"""
-
-    queryset = Product.objects.order_by("?")[:5]
-    serializer_class = CatalogSerializer

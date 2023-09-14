@@ -1,5 +1,6 @@
 from typing import List, Dict
 
+from django.db import models
 from django.db.models import Count, QuerySet
 from rest_framework import serializers
 
@@ -42,7 +43,7 @@ class CategorySerializer(serializers.ModelSerializer):
 class CatalogSerializer(ProductSerializer):
     """Serializer for product item in catalog"""
 
-    reviews = serializers.SerializerMethodField()
+    reviews = serializers.IntegerField(source='count_reviews')
     tags = TagSerializer(many=True)
 
     class Meta:
@@ -50,9 +51,6 @@ class CatalogSerializer(ProductSerializer):
         fields_to_remove = {"fullDescription", "specifications"}
         parent_fields = set(ProductSerializer.Meta.fields)
         fields = tuple(parent_fields - fields_to_remove)
-
-    def get_reviews(self, obj: Product) -> QuerySet:
-        return obj.reviews.aggregate(Count("text")).get("text__count")
 
 
 class SaleSerializer(serializers.ModelSerializer):

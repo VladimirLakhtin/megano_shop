@@ -12,14 +12,8 @@ class CatalogProductsOrderingFilter(filters.OrderingFilter):
         sort_param = request.GET.get("sort")
         sort_type = request.GET.get("sortType")
         sort_symbol = "-" if sort_type == "dec" else ""
-
-        if sort_param == "rating":
-            return sorted(queryset, key=lambda x: x.rating, reverse=sort_type == "dec")
-
-        if sort_param == "reviews":
-            return queryset.annotate(num_reviews=Count("reviews")).order_by(
-                f"{sort_symbol}num_reviews"
-            )
+        if sort_param == 'reviews':
+            sort_param = 'count_reviews'
 
         return queryset.order_by(sort_symbol + sort_param)
 
@@ -30,12 +24,10 @@ class CatalogProductsOrderingFilter(filters.OrderingFilter):
         params = {
             "category": None if category_children else category,
             "category__in": category_children if category_children else None,
-            "title__contains": data.get("filter[name]"),
+            "title__contains": data.get("filter[name]") or None,
             "price__gte": int(data.get("filter[minPrice]")),
-            "price__lte": int(data.get("filter[maxPrice]")),
-            "freeDelivery": True
-            if data.get("filter[freeDelivery]") == "true"
-            else None,
+            "price__lte": int(data.get("filter[maxPrice]")) or None,
+            "freeDelivery": True if data.get("filter[freeDelivery]") == "true" else None,
             "count__gte": 1 if data.get("filter[available]") == "true" else None,
         }
         actual_params = {k: v for k, v in params.items() if v is not None}
@@ -44,6 +36,7 @@ class CatalogProductsOrderingFilter(filters.OrderingFilter):
         # filter products witch match all tags
         for tag in data.getlist("tags[]"):
             queryset = queryset.filter(tags=tag)
+
         queryset = self.get_ordering(request, queryset, view)
         return queryset
 
@@ -68,8 +61,7 @@ class PopularProductsOrderingFilter(filters.OrderingFilter):
     """Filter products for popular bar"""
 
     def get_ordering(self, request, queryset, view):
-        queryset.order_by("sort_index")
-        return queryset
+        return queryset.order_by("sort_index")
 
     def filter_queryset(self, request, queryset, view):
-        return queryset[:8]
+        return self.get_ordering(request, queryset, view)[:8]
