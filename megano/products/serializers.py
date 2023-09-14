@@ -24,18 +24,12 @@ class TagSerializer(serializers.ModelSerializer):
 class ReviewSerializer(serializers.ModelSerializer):
     """Serializer for product review"""
 
-    author = serializers.SerializerMethodField()
-    email = serializers.SerializerMethodField()
+    author = serializers.CharField(source='author.fullName')
+    email = serializers.CharField(source='author.email')
 
     class Meta:
         model = Review
         fields = "author", "email", "text", "rate", "date"
-
-    def get_author(self, obj: Product) -> str:
-        return obj.author.fullName
-
-    def get_email(self, obj: Product) -> str:
-        return obj.author.email
 
     def validate(self, attrs):
         """

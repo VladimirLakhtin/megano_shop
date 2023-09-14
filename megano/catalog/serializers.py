@@ -56,23 +56,14 @@ class CatalogSerializer(ProductSerializer):
 class SaleSerializer(serializers.ModelSerializer):
     """Serializer for instance of Sale"""
 
-    id = serializers.SerializerMethodField()
-    price = serializers.SerializerMethodField()
-    title = serializers.SerializerMethodField()
+    id = serializers.IntegerField(source='product.id')
+    price = serializers.DecimalField(source='product.price', max_digits=10, decimal_places=2)
+    title = serializers.CharField(source='product.title')
     images = serializers.SerializerMethodField()
 
     class Meta:
         model = Sale
         fields = "id", "price", "salePrice", "dateFrom", "dateTo", "title", "images"
-
-    def get_id(self, obj: Sale) -> int:
-        return obj.product.id
-
-    def get_price(self, obj: Sale) -> float:
-        return obj.product.price
-
-    def get_title(self, obj: Sale) -> str:
-        return obj.product.title
 
     def get_images(self, obj: Sale) -> List[str]:
         return [str(img.src) for img in obj.product.get_images]

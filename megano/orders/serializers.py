@@ -1,3 +1,4 @@
+from django.db.models import Avg, Count
 from rest_framework import serializers
 
 from cart.serializers import CartSerializer
@@ -9,9 +10,9 @@ from products.models import Product
 class OrderSerializer(serializers.ModelSerializer):
     """Serializer for get order info"""
 
-    fullName = serializers.SerializerMethodField()
-    phone = serializers.SerializerMethodField()
-    email = serializers.SerializerMethodField()
+    fullName = serializers.CharField(source='profile.fullName')
+    phone = serializers.CharField(source='profile.phone')
+    email = serializers.CharField(source='profile.email')
     products = serializers.SerializerMethodField()
 
     class Meta:
@@ -31,15 +32,6 @@ class OrderSerializer(serializers.ModelSerializer):
             "products",
         )
 
-    def get_fullName(self, obj: Order):
-        return obj.profile.fullName
-
-    def get_phone(self, obj: Order):
-        return obj.profile.phone
-
-    def get_email(self, obj: Order):
-        return obj.profile.email
-
     def get_products(self, obj: Order):
         product_counts = {
             relation.product.pk: relation.count
@@ -51,7 +43,7 @@ class OrderSerializer(serializers.ModelSerializer):
             .prefetch_related('tags')\
             .prefetch_related('images')
         serializer = CartSerializer(
-            obj.products.all(), many=True, context=product_counts
+            queryset, many=True, context=product_counts
         )
         return serializer.data
 
