@@ -1,5 +1,6 @@
 from typing import List
 
+from django.db.models import Avg
 from rest_framework import serializers
 
 from products.models import (
@@ -74,6 +75,7 @@ class ProductSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(many=True)
     tags = TagSerializer(many=True)
     specifications = ProductSpecificationSerializer(many=True)
+    rating = serializers.SerializerMethodField()
 
     class Meta:
         model = Product
@@ -103,6 +105,11 @@ class ProductSerializer(serializers.ModelSerializer):
 
         images_data = [ProductImageSerializer(image).data for image in images]
         return images_data
+
+    def get_rating(self, obj: Product) -> float:
+        """Get average rating for product"""
+
+        return obj.rating
 
 
 class SalesSerializer(serializers.ModelSerializer):

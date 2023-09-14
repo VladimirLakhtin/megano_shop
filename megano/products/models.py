@@ -47,11 +47,11 @@ class Product(models.Model):
         if sales:
             return float(self.price) * (1 - float(max(sales)) / 100)
 
-    @property
-    def rating(self) -> float:
-        """Get average rating for product"""
-
-        return float(self.reviews.aggregate(Avg("rate"))["rate__avg"])
+    # @property
+    # def rating(self) -> float:
+    #     """Get average rating for product"""
+    #
+    #     return float(self.reviews.aggregate(Avg("rate"))["rate__avg"])
 
     @property
     def get_images(self) -> Iterable:
