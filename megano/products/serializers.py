@@ -75,7 +75,8 @@ class ProductSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(many=True)
     tags = TagSerializer(many=True)
     specifications = ProductSpecificationSerializer(many=True)
-    rating = serializers.SerializerMethodField()
+    rating = serializers.DecimalField(source='avg_rating',
+                                      max_digits=2, decimal_places=1)
 
     class Meta:
         model = Product
@@ -106,10 +107,6 @@ class ProductSerializer(serializers.ModelSerializer):
         images_data = [ProductImageSerializer(image).data for image in images]
         return images_data
 
-    def get_rating(self, obj: Product) -> float:
-        """Get average rating for product"""
-
-        return obj.rating
 
 
 class SalesSerializer(serializers.ModelSerializer):

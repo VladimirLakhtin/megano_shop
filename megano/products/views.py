@@ -14,7 +14,7 @@ class ProductDetailView(RetrieveAPIView):
 
     def get_queryset(self):
         return Product.objects.all()\
-                .annotate(rating=Avg('reviews__rate'))\
+                .annotate(avg_rating=Avg('reviews__rate'))\
                 .prefetch_related('reviews__author')
 
 
