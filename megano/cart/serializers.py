@@ -15,4 +15,7 @@ class CartSerializer(CatalogSerializer):
         return count or self.context["cart"][str(obj.pk)]["count"]
 
     def get_price(self, obj: Product):
-        return obj.salePrice or obj.price
+        try:
+            return float(obj.price) * (1 - float(obj.max_sale) / 100)
+        except AttributeError:
+            return obj.price
