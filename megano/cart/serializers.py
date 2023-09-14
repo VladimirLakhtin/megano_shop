@@ -17,5 +17,5 @@ class CartSerializer(CatalogSerializer):
     def get_price(self, obj: Product):
         try:
             return float(obj.price) * (1 - float(obj.max_sale) / 100)
-        except AttributeError:
+        except (AttributeError, TypeError):
             return obj.price
