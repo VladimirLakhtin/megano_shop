@@ -75,8 +75,7 @@ class ProductSerializer(serializers.ModelSerializer):
     reviews = ReviewSerializer(many=True)
     tags = TagSerializer(many=True)
     specifications = ProductSpecificationSerializer(many=True)
-    rating = serializers.DecimalField(source='avg_rating',
-                                      max_digits=2, decimal_places=1)
+    rating = serializers.DecimalField(max_digits=2, decimal_places=1)
 
     class Meta:
         model = Product

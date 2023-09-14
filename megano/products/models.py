@@ -2,7 +2,7 @@ from typing import Iterable, Optional
 
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.db import models
-from django.db.models import Avg, Count
+from django.db.models import Avg
 
 from accounts.models import Profile
 from catalog.models import Category
@@ -47,20 +47,12 @@ class Product(models.Model):
         if sales:
             return float(self.price) * (1 - float(max(sales)) / 100)
 
-    # @property
-    # def rating(self) -> float:
-    #     """Get average rating for product"""
-    #
-    #     return float(self.reviews.aggregate(Avg("rate"))["rate__avg"])
-
     @property
     def get_images(self) -> Iterable:
         """Get product images or a default image"""
 
-        images = self.images.all()
-        if not images:
-            return [ProductImage.get_default()]
-        return images
+        return self.images.all() or [ProductImage.get_default()]
+
 
     def __str__(self) -> str:
         return self.title
