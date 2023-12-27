@@ -126,10 +126,6 @@ DATABASES = {
         'PASSWORD': 'admin',
         'HOST': 'pgdb',
         'PORT': '5432',
-        # "OPTIONS": {
-            # "service": "my_service",
-            # "passfile": ".my_pgpass",
-        # },
     }
 }
 
