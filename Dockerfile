@@ -12,9 +12,3 @@ RUN pip install -r requirements.txt
 RUN pip install frontend.tar.gz
 
 COPY megano .
-
-RUN python manage.py migrate
-RUN python manage.py loaddata accounts/fixtures/users_data.json
-RUN python manage.py loaddata catalog/fixtures/catalog_data.json
-RUN python manage.py loaddata products/fixtures/products_data.json
-RUN python manage.py loaddata orders/fixtures/orders_data.json
