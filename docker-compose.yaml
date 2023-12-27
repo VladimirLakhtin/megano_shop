@@ -5,9 +5,12 @@ services:
     build:
       dockerfile: ./Dockerfile
     container_name: megano
-    command: bash -c "poetry run gunicorn megano.wsgi:application --bind 0.0.0.0:8080"
-    ports:
-      - "8000:8080"
+    command: bash -c "poetry run gunicorn megano.wsgi:application --bind 0.0.0.0:8000"
+    volumes:
+      - static_volume:/home/app/megano/staticfiles
+      - media_volume:/home/app/megano/mediafiles
+    expose:
+      - 8000
     depends_on:
       pgdb:
         condition: service_healthy
@@ -26,5 +29,17 @@ services:
     healthcheck:
       test: [ "CMD", "pg_isready", "-q" ]
 
+  nginx:
+    build: ./nginx
+    volumes:
+      - static_volume:/home/app/web/staticfiles
+      - media_volume:/home/app/web/mediafiles
+    ports:
+      - 1337:80
+    depends_on:
+      - megano
+
 volumes:
   pgdb: null
+  static_volume: null
+  media_volume: null
