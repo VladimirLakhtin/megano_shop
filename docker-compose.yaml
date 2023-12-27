@@ -5,14 +5,7 @@ services:
     build:
       dockerfile: ./Dockerfile
     container_name: megano
-    command: bash -c "
-      poetry run python manage.py migrate &&
-      poetry run python manage.py loaddata accounts/fixtures/users_data.json &&
-      poetry run python manage.py loaddata catalog/fixtures/catalog_data.json &&
-      poetry run python manage.py loaddata products/fixtures/products_data.json &&
-      poetry run python manage.py loaddata orders/fixtures/orders_data.json &&
-      poetry run python manage.py runserver 0.0.0.0:8080
-      "
+    command: bash -c "poetry run gunicorn megano.wsgi:application --bind 0.0.0.0:8080"
     ports:
       - "8000:8080"
     depends_on:
