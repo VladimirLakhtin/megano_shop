@@ -15,3 +15,23 @@ services:
       "
     ports:
       - "8000:8080"
+    depends_on:
+      pgdb:
+        condition: service_healthy
+
+  pgdb:
+    image: postgres
+    container_name: pgdb
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=meganodb
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./pgdb:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-q" ]
+
+volumes:
+  pgdb: null
