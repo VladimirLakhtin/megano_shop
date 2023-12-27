@@ -40,7 +40,7 @@ class Profile(models.Model):
         max_length=128,
         verbose_name="Электронная почта",
     )
-    phone = models.PositiveIntegerField(
+    phone = models.BigIntegerField(
         blank=True,
         null=True,
         unique=True,
