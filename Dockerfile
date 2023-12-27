@@ -4,11 +4,13 @@ ENV PYTHONUNBUFFERED=1
 
 WORKDIR /megano
 
-COPY requirements.txt requirements.txt
+COPY pyproject.toml .
+COPY poetry.lock .
 COPY frontend-0.6.tar.gz frontend.tar.gz
 
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
 RUN pip install frontend.tar.gz
+RUN pip install poetry
+RUN poetry config virtualenvs.create false \
+  && poetry install --no-interaction --no-ansi --no-root
 
 COPY megano .

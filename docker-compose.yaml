@@ -6,12 +6,12 @@ services:
       dockerfile: ./Dockerfile
     container_name: megano
     command: bash -c "
-      python manage.py migrate &&
-      python manage.py loaddata accounts/fixtures/users_data.json &&
-      python manage.py loaddata catalog/fixtures/catalog_data.json &&
-      python manage.py loaddata products/fixtures/products_data.json &&
-      python manage.py loaddata orders/fixtures/orders_data.json &&
-      python manage.py runserver 0.0.0.0:8080
+      poetry run python manage.py migrate &&
+      poetry run python manage.py loaddata accounts/fixtures/users_data.json &&
+      poetry run python manage.py loaddata catalog/fixtures/catalog_data.json &&
+      poetry run python manage.py loaddata products/fixtures/products_data.json &&
+      poetry run python manage.py loaddata orders/fixtures/orders_data.json &&
+      poetry run python manage.py runserver 0.0.0.0:8080
       "
     ports:
       - "8000:8080"
