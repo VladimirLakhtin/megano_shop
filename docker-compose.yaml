@@ -4,10 +4,14 @@ services:
   megano:
     build:
       dockerfile: ./Dockerfile
-    command:
-      - "python"
-      - "manage.py"
-      - "runserver"
-      - "0.0.0.0:8080"
+    container_name: megano
+    command: bash -c "
+      python manage.py migrate &&
+      python manage.py loaddata accounts/fixtures/users_data.json &&
+      python manage.py loaddata catalog/fixtures/catalog_data.json &&
+      python manage.py loaddata products/fixtures/products_data.json &&
+      python manage.py loaddata orders/fixtures/orders_data.json &&
+      python manage.py runserver 0.0.0.0:8080
+      "
     ports:
       - "8000:8080"
